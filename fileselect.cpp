@@ -12,40 +12,22 @@ FileSelect::FileSelect(QWidget *parent, QString user) :
     this->setWindowTitle("Total Prediction");
 
     m_user = user;
-    m_isCalibrateMode = (user == "");
     QDir dir(QDir::currentPath());
 
-    if(m_isCalibrateMode)
-    {
-        ui->headingLabel2->hide();
-        ui->headingLabel3->hide();
-        ui->fileList_original->hide();
-        ui->fileList->move(290, 125);
 
-        foreach(QString file, dir.entryList())
+    foreach(QString file, dir.entryList())
+    {
+        if(file.right(15) == "_calibrated.txt")
         {
-            if(file.right(13) == "_original.txt")
-            {
-                ui->fileList->addItem(file.left(file.length() - 13));
-            }
+            ui->fileList->addItem(file.left(file.length() - 15));
         }
     }
-    else
-    {
-        foreach(QString file, dir.entryList())
-        {
-            if(file.right(15) == "_calibrated.txt")
-            {
-                ui->fileList->addItem(file.left(file.length() - 15));
-            }
-        }
 
-        foreach(QString file, dir.entryList())
+    foreach(QString file, dir.entryList())
+    {
+        if(file.right(13) == "_original.txt")
         {
-            if(file.right(13) == "_original.txt")
-            {
-                ui->fileList_original->addItem(file.left(file.length() - 13));
-            }
+            ui->fileList_original->addItem(file.left(file.length() - 13));
         }
     }
 
@@ -78,22 +60,17 @@ void FileSelect::onSubmit()
         calib = false;
     }
 
-    if(m_isCalibrateMode)
+
+    //determine which one it came from
+    if(calib)
     {
-        file.append("_original.txt");
+        file.append("_calibrated.txt");
     }
     else
     {
-        //determine which one it came from
-        if(calib)
-        {
-            file.append("_calibrated.txt");
-        }
-        else
-        {
-            file.append("_original.txt");
-        }
+        file.append("_original.txt");
     }
+
     TestWindow *win = new TestWindow(this->parentWidget(), file, m_user);
     win->show();
     win->startOnClick();

@@ -29,8 +29,6 @@ private slots:
     void onBack();
     void reject();
 
-    void onDelete();
-    void on_userChanged(QString user);
     void on_fileChange(QString file);
 
     void on_headerClick(int column);

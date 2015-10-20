@@ -10,25 +10,15 @@ TestWindow::TestWindow(QWidget *parent, QString fileName, QString user) :
 
 
     m_user = user;
-    m_isCalibrateMode = (user == "");
     m_isOriginalFile = (fileName.right(13) == "_original.txt");
 
-    if(m_isCalibrateMode)
+    if(m_isOriginalFile)
     {
         m_fileNameBase = fileName.left(fileName.length() - 13);
-        ui->userLabel->setText("");
     }
     else
     {
-        if(m_isOriginalFile)
-        {
-            m_fileNameBase = fileName.left(fileName.length() - 13);
-        }
-        else
-        {
-            m_fileNameBase = fileName.left(fileName.length() - 15);
-        }
-        ui->userLabel->setText("User:  " + user);
+        m_fileNameBase = fileName.left(fileName.length() - 15);
     }
 
     ui->testLabel->setText("Exercise:   " + m_fileNameBase);
@@ -63,7 +53,7 @@ void TestWindow::startOnClick()
     m_timer = startTimer(1000);
 
     //autofill if not calibrate mode and \ is found
-    while(!m_isCalibrateMode && m_fileText[m_currentIndex] == '\\')
+    while(m_fileText[m_currentIndex] == '\\')
     {
         m_currentIndex++;
         m_visibleText += m_fileText[m_currentIndex];
@@ -95,8 +85,8 @@ void TestWindow::keyReleaseEvent(QKeyEvent* e)
             }
             else //correct guess but not end of file
             {
-                //autofill if not calibrate mode and \ is found
-                while(!m_isCalibrateMode && m_fileText[m_currentIndex] == '\\')
+                //autofill if \ is found
+                while(m_fileText[m_currentIndex] == '\\')
                 {
                     m_currentIndex++;
                     m_visibleText += m_fileText[m_currentIndex];
@@ -166,129 +156,50 @@ void TestWindow::onFinish()
 {
     killTimer(m_timer);
 
-    if(m_isCalibrateMode)
-    {
-
-        m_msg = QMessageBox::information(this, "Finished!",
-                                         "Exercise Complete!",
-                                         QMessageBox::Ok);
-
-        this->parentWidget()->show();
-
-        int numCalibrations;
-        //read in previously missed indicies from file
-        QFile file(m_fileNameBase + "_missed.txt");
-        if (file.open(QFile::ReadOnly | QFile::Text)) {
-
-            QTextStream in(&file);
-            QString missText = in.readAll();
-            QStringList missTextList = missText.split(",");
-            int num;
-            for(int i = 0; i < missTextList.length() - 1; i++)
-            {
-                num = missTextList[i].toInt();
-                if(!m_missedIndicies.contains(num))
-                {
-                    m_missedIndicies.append(num);
-                }
-            }
-            numCalibrations = missTextList[missTextList.length() - 1].toInt();
-            file.close();
-        }
-
-
-
-        //update _missed.txt file
-        QFile file2( m_fileNameBase + "_missed.txt" );
-        if ( file2.open(QIODevice::WriteOnly | QIODevice::Text) )
-        {
-            QTextStream stream( &file2 );
-            QString text;
-            for(int i = 0; i < m_missedIndicies.length(); i++)
-            {
-                text.append(QString::number(m_missedIndicies[i]));
-                text.append(',');
-            }
-            numCalibrations++;
-            text.append(QString::number(numCalibrations));
-
-            stream << text;
-            file2.close();
-        }
-
-
-        //Generate _calibrated.txt using _missed.txt
-        QFile file3( m_fileNameBase + "_calibrated.txt" );
-        if ( file3.open(QIODevice::WriteOnly | QIODevice::Text) )
-        {
-            QTextStream stream( &file3 );
-            QString text;
-            for(int i = 0; i < m_fileText.length(); i++)
-            {
-                if(m_missedIndicies.contains(i))
-                {
-                    text.append('\\');
-                }
-                text.append(m_fileText[i]);
-            }
-            stream << text;
-            file3.close();
-        }
-
-        this->hide();
-        connect(this, SIGNAL(send_calibrated(QString,int)), this->parent(), SLOT(on_recv_calibrated(QString, int)));
-        emit send_calibrated(m_fileNameBase, numCalibrations);
-
+    int sec = m_time % 60;
+    int min = m_time / 60;
+    QString timeText;
+    if(sec >= 10){
+        timeText = QString::number(min) + ":" + QString::number(sec);
+    }else{
+        timeText = QString::number(min) + ":0" + QString::number(sec);
     }
-    else
+
+    int total = m_correct + m_misses;
+    float percentCorrect = roundf(((float)m_correct / total) * 10000) / 100;
+    float percentMissed = roundf(((float)m_misses / total) * 10000) / 100;
+
+    m_msg = QMessageBox::information(this, "Finished!",
+                                     "Exercise Complete! \n\nCorrect: " + QString::number(m_correct) + '/'
+                                        + QString::number(total) + " -- "
+                                        + QString::number(percentCorrect)
+                                     +" %\nMissed: " + QString::number(m_misses) + '/'
+                                        + QString::number(total) + " -- "
+                                        + QString::number(percentMissed)
+                                     +" %\nTime: " + timeText,
+                                     QMessageBox::Ok);
+
+    QDateTime local(QDateTime::currentDateTime());
+    //Store Stats in User file
+    QFile file4( m_user + "_user.txt" );
+    if ( file4.open(QIODevice::Append) )
     {
-
-
-        int sec = m_time % 60;
-        int min = m_time / 60;
-        QString timeText;
-        if(sec >= 10){
-            timeText = QString::number(min) + ":" + QString::number(sec);
-        }else{
-            timeText = QString::number(min) + ":0" + QString::number(sec);
-        }
-
-        int total = m_correct + m_misses;
-        float percentCorrect = roundf(((float)m_correct / total) * 10000) / 100;
-        float percentMissed = roundf(((float)m_misses / total) * 10000) / 100;
-
-        m_msg = QMessageBox::information(this, "Finished!",
-                                         "Exercise Complete! \n\nCorrect: " + QString::number(m_correct) + '/'
-                                            + QString::number(total) + " -- "
-                                            + QString::number(percentCorrect)
-                                         +" %\nMissed: " + QString::number(m_misses) + '/'
-                                            + QString::number(total) + " -- "
-                                            + QString::number(percentMissed)
-                                         +" %\nTime: " + timeText,
-                                         QMessageBox::Ok);
-
-        QDateTime local(QDateTime::currentDateTime());
-        //Store Stats in User file
-        QFile file4( m_user + "_user.txt" );
-        if ( file4.open(QIODevice::Append) )
+        QTextStream stream( &file4 );
+        QString storeFile = m_fileNameBase;
+        if(m_isOriginalFile)
         {
-            QTextStream stream( &file4 );
-            QString storeFile = m_fileNameBase;
-            if(m_isOriginalFile)
-            {
-                storeFile.append(" - Total");
-            }
-
-            QString text = storeFile + "," + QString::number(m_correct) + "," + QString::number(m_misses) + "," + QString::number(total)
-                           + "," + QString::number(percentCorrect) + "," + QString::number(percentMissed) + "," + timeText + "," + local.toString() + "|";
-            stream << text;
-            file4.close();
+            storeFile.append(" - Total");
         }
 
-
-        this->parentWidget()->show();
-
+        QString text = storeFile + "," + QString::number(m_correct) + "," + QString::number(m_misses) + "," + QString::number(total)
+                       + "," + QString::number(percentCorrect) + "," + QString::number(percentMissed) + "," + timeText + "," + local.toString() + "|";
+        stream << text;
+        file4.close();
     }
+
+
+    this->parentWidget()->show();
+
 
 
 

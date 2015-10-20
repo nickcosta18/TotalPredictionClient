@@ -47,7 +47,6 @@ private:
 
     QList<int> m_missedIndicies;
 
-    bool m_isCalibrateMode;
     bool m_isOriginalFile;
     QString m_user;
 

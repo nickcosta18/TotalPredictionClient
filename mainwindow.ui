@@ -86,7 +86,7 @@
      <string notr="true">font-size: 18px;</string>
     </property>
     <property name="text">
-     <string>View Performance</string>
+     <string>View Data</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_5">

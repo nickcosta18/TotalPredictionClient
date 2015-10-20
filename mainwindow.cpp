@@ -168,9 +168,9 @@ void MainWindow::onProctorTestClick()
 
     if(present)
     {
-        /*UserSelect *win = new UserSelect(this);
+        FileSelect *win = new FileSelect(this, "user");
         win->show();
-        this->hide();*/
+        this->hide();
     }
     else
     {

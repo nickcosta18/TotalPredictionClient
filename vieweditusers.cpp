@@ -11,7 +11,6 @@ ViewEditUsers::ViewEditUsers(QWidget *parent) :
     ui->headingLabel->setStyleSheet("font-family: EA Sports Covers SC;color: rgb(48, 76, 135);font-size: 45px;");
     ui->subLabel->setStyleSheet("font-family: EA Sports Covers SC;color: rgb(48, 76, 135);font-size: 25px;");
     ui->backButton->setStyleSheet("font-family: EA Sports Covers SC;color: rgb(48, 76, 135);font-size: 25px;");
-    ui->deleteButton->setStyleSheet("font-family: EA Sports Covers SC;color: rgb(48, 76, 135);font-size: 25px;");
 
     ui->infoTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -26,45 +25,12 @@ ViewEditUsers::ViewEditUsers(QWidget *parent) :
 
     ui->infoTable->verticalHeader()->hide();
 
-    QDir dir(QDir::currentPath());
-    foreach(QString file, dir.entryList())
-    {
-        if(file.right(9) == "_user.txt")
-        {
-            ui->userList->addItem(file.left(file.length() - 9));
-        }
-    }
 
-    ui->userList->setFocus();
-    ui->userList->setCurrentRow(0);
-}
-
-ViewEditUsers::~ViewEditUsers()
-{
-    delete ui;
-}
-
-void ViewEditUsers::onBack()
-{
-    reject();
-}
-
-void ViewEditUsers::reject()
-{
-    ui->infoTable->clearContents();
-    this->parentWidget()->show();
-    delete this;
-}
-
-void ViewEditUsers::on_userChanged(QString user)
-{
-    ui->infoTable->clearContents();
-    ui->fileFilter->clear();
     ui->fileFilter->addItem("All");
     ui->fileFilter->setCurrentIndex(0);
 
 
-    QFile file(user + "_user.txt");
+    QFile file("user_user.txt");
     if (file.open(QFile::ReadOnly | QFile::Text))
     {
         QTextStream in(&file);
@@ -92,45 +58,23 @@ void ViewEditUsers::on_userChanged(QString user)
     }
 }
 
-void ViewEditUsers::onDelete()
+ViewEditUsers::~ViewEditUsers()
 {
-    QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Stop?",
-                                     "Are you sure you want to delete this user?",
-                                     QMessageBox::Yes | QMessageBox::No);
-
-    if(reply == QMessageBox::Yes)
-    {
-        QString user = ui->userList->currentItem()->text();
-
-        //remove _user.txt
-        QFile file( user + "_user.txt" );
-        file.remove();
-
-        ui->userList->clear();
-
-        QDir dir(QDir::currentPath());
-        bool found = false;
-        foreach(QString file, dir.entryList())
-        {
-            if(file.right(9) == "_user.txt")
-            {
-                ui->userList->addItem(file.left(file.length() - 9));
-                found = true;
-            }
-        }
-
-        if(found)
-        {
-            ui->userList->setFocus();
-            ui->userList->setCurrentRow(0);
-        }
-        else //last user was deleted
-        {
-            reject();
-        }
-    }
+    delete ui;
 }
+
+void ViewEditUsers::onBack()
+{
+    reject();
+}
+
+void ViewEditUsers::reject()
+{
+    ui->infoTable->clearContents();
+    this->parentWidget()->show();
+    delete this;
+}
+
 
 void ViewEditUsers::on_fileChange(QString file)
 {

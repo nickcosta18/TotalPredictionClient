@@ -22,7 +22,6 @@ public:
 
 private:
     Ui::FileSelect *ui;
-    bool m_isCalibrateMode;
     QString m_user;
 
 private slots:

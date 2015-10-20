@@ -24,13 +24,12 @@ ViewEditChoice::~ViewEditChoice()
 
 void ViewEditChoice::onUsers()
 {
-
-    //Verify > 0  _original.txt files exist
+    //Verify user_user.txt exists
     bool present = false;
     QDir dir(QDir::currentPath());
     foreach(QString file, dir.entryList())
     {
-        if(file.right(9) == "_user.txt")
+        if(file == "user_user.txt")
         {
             present = true;
             break;
@@ -46,7 +45,7 @@ void ViewEditChoice::onUsers()
     else
     {
         QMessageBox::critical(this, "Error",
-                                         "No users have been created yet.",
+                                         "You have not yet completed any exercises.",
                                          QMessageBox::Ok);
     }
 

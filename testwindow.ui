@@ -106,27 +106,6 @@
     <string>TEST PLACEHOLDER</string>
    </property>
   </widget>
-  <widget class="QLabel" name="userLabel">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>480</y>
-     <width>231</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>-1</pointsize>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font-size: 18px;</string>
-   </property>
-   <property name="text">
-    <string>USER PLACEHOLDER</string>
-   </property>
-  </widget>
  </widget>
  <resources/>
  <connections>

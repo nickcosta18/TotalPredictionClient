@@ -27,10 +27,7 @@ private slots:
     void onBack();
     void reject();
 
-    void onExport();
     void onDelete();
-
-    void on_testChange(QString fileBase);
 };
 
 #endif // VIEWEDITTESTS_H
