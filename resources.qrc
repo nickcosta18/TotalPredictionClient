@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>total_prediction.png</file>
+        <file>total_prediction_verbose</file>
+        <file>EASports.ttf</file>
+        <file>Total_Prediction_Small.png</file>
+    </qresource>
+</RCC>
