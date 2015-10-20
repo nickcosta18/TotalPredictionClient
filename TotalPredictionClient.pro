@@ -16,16 +16,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     fileselect.cpp \
     testwindow.cpp \
-    userselect.cpp \
     vieweditchoice.cpp \
     vieweditusers.cpp \
     viewedittests.cpp
 
 HEADERS  += mainwindow.h \
-    createnew.h \
     fileselect.h \
     testwindow.h \
-    userselect.h \
     vieweditchoice.h \
     vieweditusers.h \
     viewedittests.h
@@ -33,7 +30,6 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     fileselect.ui \
     testwindow.ui \
-    userselect.ui \
     vieweditchoice.ui \
     vieweditusers.ui \
     viewedittests.ui

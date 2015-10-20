@@ -33,38 +33,123 @@ void MainWindow::onInstructionsClick()
 
 void MainWindow::onCreateNewClick()
 {
-    CreateNew *win = new CreateNew(this);
-    win->show();
-    this->hide();
-}
+        QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+        QString importFile = QFileDialog::getOpenFileName(this, "Import File", desktop, "Text File (*.txt)");
 
-void MainWindow::onCalibrateTestClick()
-{
-    //Verify > 0  _original.txt files exist
-    bool present = false;
-    QDir dir(QDir::currentPath());
-    foreach(QString file, dir.entryList())
-    {
-        if(file.right(13) == "_original.txt")
+        //On Cancel
+        if(importFile == "")
         {
-            present = true;
-            break;
+            return;
         }
-    }
 
 
-    if(present)
-    {
-        FileSelect *win = new FileSelect(this, "");
-        win->show();
-        this->hide();
-    }
-    else
-    {
-        m_msg = QMessageBox::critical(this, "Error",
-                                         "No exercises have been created yet.",
+        QStringList pathParts = importFile.split("/");
+        QString fileBase = pathParts[pathParts.length() - 1].left(pathParts[pathParts.length() - 1].length() - 4);
+
+
+        //Check if name already exists
+        bool found = false;
+        QMessageBox::StandardButton reply = QMessageBox::No;
+        QDir dir(QDir::currentPath());
+        foreach(QString file, dir.entryList())
+        {
+            if(file.right(13) == "_original.txt" && file.left(file.length() - 13) == fileBase)
+            {
+                found = true;
+                reply = QMessageBox::question(this, "Overwrite?",
+                                                 "An exercise by this name already exists. Would you like to overwrite it?",
+                                                 QMessageBox::Yes | QMessageBox::No);
+
+                break;
+            }
+        }
+
+        if( found && reply == QMessageBox::No)
+        {
+            return;
+        }
+
+
+        QString fileText;
+
+        QFile file( importFile );
+        if (file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QTextStream in(&file);
+            fileText = in.readAll();
+            file.close();
+        }else{
+            QMessageBox::critical(this, "Error",
+                                  "There was an error importing this file.",
+                                   QMessageBox::Ok);
+            return;
+        }
+
+        QStringList parts = fileText.split("<>");
+        bool calibratePresent;
+        if(parts.length() == 5)
+        {
+            calibratePresent = true;
+        }
+        else if(parts.length() == 4)
+        {
+            calibratePresent = false;
+        }
+        else
+        {
+            QMessageBox::critical(this, "Error",
+                                  "There was an error importing this file.",
+                                   QMessageBox::Ok);
+            return;
+        }
+
+        QFile file2( fileBase + "_original.txt" );
+        if ( file2.open(QIODevice::WriteOnly | QIODevice::Text) )
+        {
+            QTextStream stream( &file2 );
+            stream << parts[1];
+            file2.close();
+        }else{
+            QMessageBox::critical(this, "Error",
+                                  "There was an error importing this file.",
+                                   QMessageBox::Ok);
+            return;
+        }
+
+
+        QFile file3( fileBase + "_missed.txt" );
+        if ( file3.open(QIODevice::WriteOnly | QIODevice::Text) )
+        {
+            QTextStream stream( &file3 );
+            stream << parts[2];
+            file3.close();
+        }else{
+            QMessageBox::critical(this, "Error",
+                                  "There was an error importing this file.",
+                                   QMessageBox::Ok);
+            return;
+        }
+
+        if(calibratePresent)
+        {
+            QFile file3( fileBase + "_calibrated.txt" );
+            if ( file3.open(QIODevice::WriteOnly | QIODevice::Text) )
+            {
+                QTextStream stream( &file3 );
+                stream << parts[3];
+                file3.close();
+            }else{
+                QMessageBox::critical(this, "Error",
+                                      "There was an error importing this file.",
+                                       QMessageBox::Ok);
+                return;
+            }
+        }
+
+
+        m_msg = QMessageBox::information(this, "Update",
+                                         "Exercise '" + fileBase + "' Imported!",
                                          QMessageBox::Ok);
-    }
 }
 
 void MainWindow::onProctorTestClick()
@@ -83,14 +168,14 @@ void MainWindow::onProctorTestClick()
 
     if(present)
     {
-        UserSelect *win = new UserSelect(this);
+        /*UserSelect *win = new UserSelect(this);
         win->show();
-        this->hide();
+        this->hide();*/
     }
     else
     {
         m_msg = QMessageBox::critical(this, "Error",
-                                         "No exercises have been calibrated yet.",
+                                         "No exercises have been imported yet.",
                                          QMessageBox::Ok);
     }
 }
@@ -103,29 +188,3 @@ void MainWindow::onViewEditDataClick()
     this->hide();
 }
 
-
-
-
-void MainWindow::on_recv_newTest(QString name)
-{
-    m_msg = QMessageBox::information(this, "Update",
-                                     "New Exercise '" + name + "' Created!",
-                                     QMessageBox::Ok);
-}
-
-void MainWindow::on_recv_importTest(QString name)
-{
-    m_msg = QMessageBox::information(this, "Update",
-                                     "Exercise '" + name + "' Imported!",
-                                     QMessageBox::Ok);
-}
-
-
-void MainWindow::on_recv_calibrated(QString name, int num)
-{
-    qDebug() << num;
-    m_msg = QMessageBox::information(this, "Update",
-                                     "Exercise '" + name + "' has been calibrated \
-                                      based on " + QString::number(num) + " input(s)!",
-                                     QMessageBox::Ok);
-}
