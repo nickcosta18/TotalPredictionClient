@@ -14,12 +14,14 @@ FileSelect::FileSelect(QWidget *parent, QString user) :
     m_user = user;
     QDir dir(QDir::currentPath());
 
+    bool calibExists = false;
 
     foreach(QString file, dir.entryList())
     {
         if(file.right(15) == "_calibrated.txt")
         {
             ui->fileList->addItem(file.left(file.length() - 15));
+            calibExists = true;
         }
     }
 
@@ -31,8 +33,31 @@ FileSelect::FileSelect(QWidget *parent, QString user) :
         }
     }
 
-    ui->fileList->setFocus();
-    ui->fileList->setCurrentRow(0);
+    if(calibExists)
+    {
+        ui->originalCheckbox->setChecked(false);
+        ui->calibratedCheckbox->setChecked(true);
+
+        ui->fileList_original->setCurrentRow(0);
+
+        ui->fileList->setFocus();
+        ui->fileList->setCurrentRow(0);
+    }
+    else
+    {
+        ui->originalCheckbox->setChecked(true);
+        ui->calibratedCheckbox->setChecked(false);
+
+        ui->calibratedCheckbox->setEnabled(false);
+        ui->originalCheckbox->setEnabled(false);
+        ui->fileList->setEnabled(false);
+
+        ui->fileList_original->setFocus();
+        ui->fileList_original->setCurrentRow(0);
+    }
+
+    connect(ui->calibratedCheckbox, SIGNAL(clicked(bool)), this, SLOT(toggled(bool)));
+    connect(ui->originalCheckbox, SIGNAL(clicked(bool)), this, SLOT(toggled(bool)));
 }
 
 FileSelect::~FileSelect()
@@ -49,7 +74,7 @@ void FileSelect::onSubmit()
 {
     QString file;
     bool calib;
-    if (ui->fileList->hasFocus())
+    if (ui->calibratedCheckbox->isChecked())
     {
         file = ui->fileList->currentItem()->text();
         calib = true;
@@ -81,4 +106,34 @@ void FileSelect::reject()
 {
     this->parentWidget()->show();
     delete this;
+}
+
+void FileSelect::toggled(bool checked)
+{
+    if(QObject::sender() == ui->calibratedCheckbox)
+    {
+        if(checked)
+        {
+            ui->originalCheckbox->setChecked(false);
+            ui->fileList->setFocus();
+        }
+        else
+        {
+            ui->originalCheckbox->setChecked(true);
+            ui->fileList_original->setFocus();
+        }
+    }
+    else
+    {
+        if(checked)
+        {
+            ui->calibratedCheckbox->setChecked(false);
+            ui->fileList_original->setFocus();
+        }
+        else
+        {
+            ui->calibratedCheckbox->setChecked(true);
+            ui->fileList->setFocus();
+        }
+    }
 }
