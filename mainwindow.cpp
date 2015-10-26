@@ -25,9 +25,10 @@ void MainWindow::onInstructionsClick()
 {
 
     m_msg = QMessageBox::information(this, "Instructions",
-                                     "1) Create a test.\n"
-                                     "2) Calibrate the test.\n"
-                                     "3) Proctor the test to patients.\n",
+                                     "This application will assist you with cognative rehabilitation through letter prediction exercises. Using this app, you will continually guess the next letter in a text file until the end is reached. \n\n"
+                                     "1) Import an exercise. Exercises should be provided to you by your physician. Note that more exercises are hosted at www.totalprediction.weebly.com. \n\n"
+                                     "2) Take the exercise. Choose the exercise you want to complete. When the exercise begins, you will continually guess the next letter in the paragraph until the exercise is complete. \n\n"
+                                     "3) You can view information about your performances on the exercises.",
                                      QMessageBox::Ok);
 }
 
