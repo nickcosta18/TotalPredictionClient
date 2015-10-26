@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = TotalPredictionClient
 TEMPLATE = app
 
+ICON = TP_Icon_icns.icns
+RC_ICONS = TP_Icon_ico.ico
 
 SOURCES += main.cpp\
         mainwindow.cpp \
